@@ -162,3 +162,86 @@ ggp_base +
 ![](viz_2_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 You can also preset ggplot options in the beginning of your .rmd
+
+You can also put two datasets in one plot using two geoms
+
+``` r
+central_park = 
+  weather_df %>% 
+  filter(name == "CentralPark_NY")
+
+waikiki = 
+  weather_df %>% 
+  filter(name == "Waikiki_HA")
+
+ggplot(data = waikiki, aes(x = date, y = tmax, color = name)) + 
+  geom_point() + 
+  geom_line(data = central_park)
+```
+
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](viz_2_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+# Patchwork
+
+You can juxtapose several different plots using patchwork. First
+download the package from
+    github
+
+``` r
+devtools::install_github("thomasp85/patchwork")
+```
+
+    ## Skipping install of 'patchwork' from a github remote, the SHA1 (36b49187) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
+
+``` r
+tmax_tmin_p = 
+  weather_df %>% 
+  ggplot(aes(x = tmax, y = tmin, color = name)) + 
+  geom_point(alpha = .5) +
+  theme(legend.position = "none")
+
+prcp_dens_p = 
+  weather_df %>% 
+  filter(prcp > 0) %>% 
+  ggplot(aes(x = prcp, fill = name)) + 
+  geom_density(alpha = .5) + 
+  theme(legend.position = "none")
+
+tmax_date_p = 
+  weather_df %>% 
+  ggplot(aes(x = date, y = tmax, color = name)) + 
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE) + 
+  theme(legend.position = "bottom")
+
+(tmax_tmin_p + prcp_dens_p) / tmax_date_p
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_smooth).
+
+    ## Warning: Removed 3 rows containing missing values (geom_point).
+
+![](viz_2_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+# Data Manipulation
+
+R uses alphabetial ordering, so Central Park is first; you can change
+this but need to make it a factor variable first, then use fct\_relevel
+
+``` r
+weather_df %>%
+  mutate(name = factor(name), 
+         name = fct_relevel(name, "Waikiki_HA", "CentralPark_NY")) %>% 
+ggplot(aes(x = name, y = tmax, color = name)) + geom_boxplot()
+```
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_boxplot).
+
+![](viz_2_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->

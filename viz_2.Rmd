@@ -11,6 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggridges)
+library(patchwork)
 ```
 
 ```{r df_1, cache = FALSE}
@@ -106,4 +107,62 @@ ggp_base +
 
 You can also preset ggplot options in the beginning of your .rmd
 
+You can also put two datasets in one plot using two geoms
+
+```{r}
+central_park = 
+  weather_df %>% 
+  filter(name == "CentralPark_NY")
+
+waikiki = 
+  weather_df %>% 
+  filter(name == "Waikiki_HA")
+
+ggplot(data = waikiki, aes(x = date, y = tmax, color = name)) + 
+  geom_point() + 
+  geom_line(data = central_park)
+```
+
+# Patchwork
+
+You can juxtapose several different plots using patchwork. First download the package from github
+
+```{r}
+devtools::install_github("thomasp85/patchwork")
+```
+
+```{r}
+tmax_tmin_p = 
+  weather_df %>% 
+  ggplot(aes(x = tmax, y = tmin, color = name)) + 
+  geom_point(alpha = .5) +
+  theme(legend.position = "none")
+
+prcp_dens_p = 
+  weather_df %>% 
+  filter(prcp > 0) %>% 
+  ggplot(aes(x = prcp, fill = name)) + 
+  geom_density(alpha = .5) + 
+  theme(legend.position = "none")
+
+tmax_date_p = 
+  weather_df %>% 
+  ggplot(aes(x = date, y = tmax, color = name)) + 
+  geom_point(alpha = .5) +
+  geom_smooth(se = FALSE) + 
+  theme(legend.position = "bottom")
+
+(tmax_tmin_p + prcp_dens_p) / tmax_date_p
+```
+
+# Data Manipulation
+
+R uses alphabetial ordering, so Central Park is first; you can change this but need to make it a factor variable first, then use fct_relevel
+```{r}
+weather_df %>%
+  mutate(name = factor(name), 
+         name = fct_relevel(name, "Waikiki_HA", "CentralPark_NY")) %>% 
+ggplot(aes(x = name, y = tmax, color = name)) + geom_boxplot()
+  
+```
 

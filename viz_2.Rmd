@@ -1,0 +1,109 @@
+---
+title: "ggplot2"
+author: "Alice Tivarovsky"
+date: "9/26/2019"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggridges)
+```
+
+```{r df_1, cache = FALSE}
+weather_df = 
+  rnoaa::meteo_pull_monitors(c("USW00094728", "USC00519397", "USS0023B17S"),
+                      var = c("PRCP", "TMIN", "TMAX"), 
+                      date_min = "2017-01-01",
+                      date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY", 
+                      USC00519397 = "Waikiki_HA",
+                      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  select(name, id, everything())
+weather_df
+```
+
+
+#Start with an old plot 
+
+```{r}
+
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5)
+
+```
+
+add labels: 
+
+```{r}
+
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) + 
+  labs(
+    title = "temperature plot",
+    x = "Minimum Temp (C)",
+    y = "Maximum Temp (C)", 
+    caption = "Data from NOAA via rnoaa package"
+  )
+```
+
+x-axis tick marks ect
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) + 
+  labs(
+    title = "temperature plot",
+    x = "Minimum Temp (C)",
+    y = "Maximum Temp (C)", 
+    caption = "Data from NOAA via rnoaa package"
+  ) +
+  scale_x_continuous(
+    breaks = c(-15, -5, 20),
+    labels = c("-15C", "-5C", "20C")
+  ) +
+  scale_y_continuous(
+    trans = "sqrt"
+  )
+```
+
+
+## Colors
+
+```{r}
+ggp_base = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_point(aes(color = name), alpha = 0.5) + 
+  labs(
+    title = "temperature plot",
+    x = "Minimum Temp (C)",
+    y = "Maximum Temp (C)", 
+    caption = "Data from NOAA via rnoaa package"
+  ) + 
+  viridis::scale_color_viridis(name = "location", discrete = TRUE)
+
+ggp_base
+```
+
+## Themes
+themes are just things that don't fit into aesthetics/geoms; theme_bw is nice, theme_minimal is also nice; you can get rid of the legend by using legend.position = "none"; overarching themes go first, tweaks go next
+
+```{r}
+ggp_base + 
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+You can also preset ggplot options in the beginning of your .rmd
+
+

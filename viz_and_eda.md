@@ -75,7 +75,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) + geom_point()
 
 alternate way of making this plot
 
-adding color…
+adding color and a line via geom\_smooth
 
 ``` r
 weather_df %>% 
@@ -98,7 +98,7 @@ creating facets:
 ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) + 
   geom_point(alpha = .5) +
   geom_smooth(se = FALSE) + 
-  facet_grid(. ~ name)
+  facet_grid(.~ name)
 ```
 
     ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
@@ -127,3 +127,100 @@ trying a new plot:
 ![](viz_and_eda_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 other plots…
+
+ggsave("ggplot\_t)
+
+## making new plots
+
+``` r
+weather_df %>% 
+  ggplot(aes(x= tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5)
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](viz_and_eda_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+  labs(
+    title = "Temperature Plot", 
+    x = "Minimum Temp (C)",
+    y = "Maximum Temp (C)",
+    caption = "Data from NOAA"
+  )
+```
+
+    ## $x
+    ## [1] "Minimum Temp (C)"
+    ## 
+    ## $y
+    ## [1] "Maximum Temp (C)"
+    ## 
+    ## $title
+    ## [1] "Temperature Plot"
+    ## 
+    ## $caption
+    ## [1] "Data from NOAA"
+    ## 
+    ## attr(,"class")
+    ## [1] "labels"
+
+Labels:
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    caption = "Data from the rnoaa package") + 
+  scale_x_continuous(
+    breaks = c(-15, 0, 15), 
+    labels = c("-15º C", "0", "15") + 
+      scale_y_continuous(
+        trans = "sqrt"
+      ))
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](viz_and_eda_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
+Colors:
+
+``` r
+ggp_temp_plot = 
+  weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_point(aes(color = name), alpha = .5) + 
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maxiumum daily temperature (C)",
+    caption = "Data from the rnoaa package"
+  ) + 
+  viridis::scale_color_viridis(
+    name = "Location", 
+    discrete = TRUE
+  )
+ggp_temp_plot
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](viz_and_eda_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+## Themes
+
+``` r
+ggp_temp_plot +
+  theme_minimal() +
+theme(legend.position = "bottom")
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](viz_and_eda_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->

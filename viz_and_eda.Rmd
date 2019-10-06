@@ -38,7 +38,7 @@ ggplot(weather_df, aes(x = tmin, y = tmax)) + geom_point()
 
 alternate way of making this plot
 
-adding color...
+adding color and a line via geom_smooth
 
 ```{r}
 weather_df %>% 
@@ -53,7 +53,7 @@ creating facets:
 ggplot(weather_df, aes(x = tmin, y = tmax, color = name)) + 
   geom_point(alpha = .5) +
   geom_smooth(se = FALSE) + 
-  facet_grid(. ~ name)
+  facet_grid(.~ name)
 ```
 
 trying a new plot: 
@@ -68,4 +68,17 @@ trying a new plot:
 other plots...
 
 ggsave("ggplot_t)
+
+## making new plots
+```{r}
+weather_df %>% 
+  ggplot(aes(x= tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5)
+  labs(
+    title = "Temperature Plot", 
+    x = "Minimum Temp (C)",
+    y = "Maximum Temp (C)",
+    caption = "Data from NOAA"
+  )
+```
 
